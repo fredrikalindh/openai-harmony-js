@@ -69,9 +69,12 @@ const DEFAULT_DELIMS: HarmonyDelimiters = {
 
 export class HarmonyError extends Error {
   code: string;
-  constructor(code: string, message: string) {
+  details: Record<string, unknown> | undefined;
+  constructor(code: string, message: string, details?: Record<string, unknown>) {
     super(message);
     this.code = code;
+    this.details = details;
+    this.name = "HarmonyError";
   }
 }
 
@@ -155,7 +158,10 @@ export function createParser(): {
         const roleRaw = token.slice(delims.start.length);
         if (!isHarmonyRole(roleRaw)) {
           const role = roleRaw;
-          throw new HarmonyError("INVALID_ROLE", "Unknown role: " + role);
+          throw new HarmonyError("INVALID_ROLE", "Unknown role: " + role, {
+            token,
+            role,
+          });
         }
         if (state.current !== undefined) {
           const currentMessage: HarmonyMessage = state.current;
@@ -190,18 +196,25 @@ export function createParser(): {
         return;
       }
       if (state.current === undefined) {
-        throw new HarmonyError("UNEXPECTED_TOKEN", "Content outside of a message: " + token);
+        throw new HarmonyError("UNEXPECTED_TOKEN", "Content outside of a message: " + token, {
+          token,
+        });
       }
       if (token.startsWith("text:")) {
         const after = token.slice("text:".length);
         const sep = after.indexOf(":");
         if (sep < 0) {
-          throw new HarmonyError("INVALID_TEXT", "Missing channel in text token");
+          throw new HarmonyError("INVALID_TEXT", "Missing channel in text token", {
+            token,
+          });
         }
         const channelRaw = after.slice(0, sep);
         const text = after.slice(sep + 1);
         if (!isHarmonyChannel(channelRaw)) {
-          throw new HarmonyError("INVALID_CHANNEL", "Unknown channel: " + channelRaw);
+          throw new HarmonyError("INVALID_CHANNEL", "Unknown channel: " + channelRaw, {
+            token,
+            channel: channelRaw,
+          });
         }
         const textChunk: HarmonyContentChunk = {
           type: "text",
@@ -217,7 +230,9 @@ export function createParser(): {
         const first = rest.indexOf(":");
         const second = rest.indexOf(":", first + 1);
         if (first < 0 || second < 0) {
-          throw new HarmonyError("INVALID_TOOL", "Malformed tool token: missing separators");
+          throw new HarmonyError("INVALID_TOOL", "Malformed tool token: missing separators", {
+            token,
+          });
         }
         const namespace = rest.slice(0, first);
         const name = rest.slice(first + 1, second);
@@ -226,7 +241,10 @@ export function createParser(): {
         try {
           parsed = JSON.parse(argsRaw);
         } catch (e) {
-          throw new HarmonyError("INVALID_TOOL_ARGS", "Invalid JSON args");
+          throw new HarmonyError("INVALID_TOOL_ARGS", "Invalid JSON args", {
+            token,
+            args: argsRaw,
+          });
         }
         const toolChunk: HarmonyContentChunk = {
           type: "tool_call",
@@ -246,7 +264,7 @@ export function createParser(): {
         state.expectingPayload = false;
         return;
       }
-      throw new HarmonyError("UNKNOWN_TOKEN", "Unknown token prefix: " + token);
+      throw new HarmonyError("UNKNOWN_TOKEN", "Unknown token prefix: " + token, { token });
     },
     finish() {
       if (state.current !== undefined) {
@@ -272,6 +290,31 @@ export function parseTokens(tokens: string[], delimiters?: HarmonyDelimiters): H
     parser.push(t, delimiters);
   }
   return parser.finish();
+}
+
+/**
+ * Safe parse variant that does not throw on errors. Instead, returns a discriminated result.
+ */
+export function tryParseTokens(
+  tokens: string[],
+  delimiters?: HarmonyDelimiters,
+): { ok: true; value: HarmonyConversation } | { ok: false; error: HarmonyError } {
+  try {
+    const value = parseTokens(tokens, delimiters);
+    return { ok: true, value };
+  } catch (err) {
+    if (err instanceof HarmonyError) {
+      return { ok: false, error: err };
+    }
+    let message = "Error";
+    if (err instanceof Error) {
+      message = err.message;
+    } else if (typeof err === "string" && err.length > 0) {
+      message = err;
+    }
+    const unknown = new HarmonyError("UNKNOWN_ERROR", message);
+    return { ok: false, error: unknown };
+  }
 }
 
 // ---- String helpers for completion strings ----
@@ -395,6 +438,15 @@ export function extractFinalContent(input: string): string {
   const commentaryText = safeExtractChannel(input, "commentary");
   if (commentaryText.length > 0) return commentaryText;
   return "";
+}
+
+/**
+ * Extracts the latest text for the `commentary` channel from a Harmony-formatted string.
+ * Returns an empty string if the input is not Harmony-formatted or lacks commentary content.
+ */
+export function extractCommentaryContent(input: string): string {
+  if (!isHarmonyFormat(input)) return "";
+  return safeExtractChannel(input, "commentary");
 }
 
 function safeExtractChannel(input: string, channel: string): string {
