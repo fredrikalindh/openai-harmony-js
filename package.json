@@ -1,5 +1,5 @@
 {
-  "name": "harmony-js",
+  "name": "openai-harmony-js",
   "version": "1.0.0",
   "description": "TypeScript/JavaScript utilities for the GPT‑OSS Harmony format: renderers, parsers, tokenizers, and streaming helpers",
   "license": "MIT",
@@ -12,6 +12,9 @@
     "LICENSE"
   ],
   "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=18"
   },
@@ -46,12 +49,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fredrikalindh/harmony-js.git"
+    "url": "git+https://github.com/fredrikalindh/openai-harmony-js.git"
   },
   "bugs": {
-    "url": "https://github.com/fredrikalindh/harmony-js/issues"
+    "url": "https://github.com/fredrikalindh/openai-harmony-js/issues"
   },
-  "homepage": "https://github.com/fredrikalindh/harmony-js#readme",
+  "homepage": "https://github.com/fredrikalindh/openai-harmony-js#readme",
   "author": "Fredrika Lindh",
   "devDependencies": {
     "@types/node": "^20.11.0",

@@ -1,12 +1,12 @@
-# harmony-js
+# openai-harmony-js
 
 TypeScript/JavaScript utilities for the GPT‑OSS Harmony format: renderers, parsers, tokenizers, and streaming helpers.
 
 [OpenAI Harmony reference](https://github.com/openai/harmony)
 
-[![npm version](https://img.shields.io/npm/v/harmony-js.svg)](https://www.npmjs.com/package/harmony-js)
-[![node](https://img.shields.io/node/v/harmony-js.svg)](https://www.npmjs.com/package/harmony-js)
-[![license](https://img.shields.io/npm/l/harmony-js.svg)](LICENSE)
+[![npm version](https://img.shields.io/npm/v/openai-harmony-js.svg)](https://www.npmts.com/package/openai-harmony-js)
+[![node](https://img.shields.io/node/v/openai-harmony-js.svg)](https://www.npmts.com/package/openai-harmony-js)
+[![license](https://img.shields.io/npm/l/openai-harmony-js.svg)](LICENSE)
 
 ### Features
 
@@ -21,13 +21,13 @@ TypeScript/JavaScript utilities for the GPT‑OSS Harmony format: renderers, par
 ### Installation
 
 ```bash
-npm install harmony-js
+npm install openai-harmony-js
 # or
-yarn add harmony-js
+yarn add openai-harmony-js
 # or
-pnpm add harmony-js
+pnpm add openai-harmony-js
 # or
-bun add harmony-js
+bun add openai-harmony-js
 ```
 
 ### Quick start
@@ -39,7 +39,7 @@ import {
   renderConversation,
   parseTokens,
   type HarmonyConversation,
-} from "harmony-js";
+} from "openai-harmony-js";
 
 const convo: HarmonyConversation = Conversation.fromMessages([
   Message.fromRoleAndContent("system", "You are a helpful assistant."),
@@ -58,7 +58,7 @@ const roundTripped = parseTokens(tokens);
 If you receive a raw completion string containing Harmony markers like `<|start|>`, `<|channel|>`, `<|message|>`, and `<|end|>`, you can tokenize and parse directly:
 
 ```ts
-import { tokenizeCompletionString, parseConversationFromString } from "harmony-js";
+import { tokenizeCompletionString, parseConversationFromString } from "openai-harmony-js";
 
 const raw = "" + "<|start|>assistant" + "<|channel|>message<|message|>Hello there!" + "<|end|>";
 
@@ -71,7 +71,7 @@ const conversation = parseConversationFromString(raw);
 GPT‑OSS models often stream Harmony strings that contain channels like `analysis`, `final`, and `commentary`. Use these helpers to extract text safely at any time:
 
 ```ts
-import { extractReasoningContent, extractFinalContent } from "harmony-js";
+import { extractReasoningContent, extractFinalContent } from "openai-harmony-js";
 
 const streamed = "...<|channel|>analysis<|message|>thinking...<|end|>...";
 const analysis = extractReasoningContent(streamed); // "thinking..."
@@ -83,7 +83,7 @@ const final = extractFinalContent(streamed); // prefers `final`, falls back to `
 Use `HarmonyStreamParser` to accumulate partial chunks and get incremental snapshots (current analysis/final/commentary, last channel, and completeness):
 
 ```ts
-import { HarmonyStreamParser } from "harmony-js";
+import { HarmonyStreamParser } from "openai-harmony-js";
 
 const stream = new HarmonyStreamParser();
 
@@ -104,7 +104,7 @@ const full = stream.getBuffer();
 By default, delimiters are `<|start|>`, `<|message|>`, and `<|end|>`. You can override them:
 
 ```ts
-import { renderConversation, createParser, type HarmonyDelimiters } from "harmony-js";
+import { renderConversation, createParser, type HarmonyDelimiters } from "openai-harmony-js";
 
 const custom: HarmonyDelimiters = {
   start: "<<S>>",
@@ -130,7 +130,7 @@ This library accepts structured `HarmonyMessage` content with channels suited fo
 ### Encoding facade
 
 ```ts
-import { loadHarmonyEncoding } from "harmony-js";
+import { loadHarmonyEncoding } from "openai-harmony-js";
 
 const enc = loadHarmonyEncoding("HARMONY_GPT_OSS");
 const tokens = enc.renderConversationForCompletion({ messages: [] });
