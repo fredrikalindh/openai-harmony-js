@@ -4,8 +4,8 @@ TypeScript/JavaScript utilities for the GPT‑OSS Harmony format: renderers, par
 
 [OpenAI Harmony reference](https://github.com/openai/harmony)
 
-[![npm version](https://img.shields.io/npm/v/openai-harmony-js.svg)](https://www.npmts.com/package/openai-harmony-js)
-[![node](https://img.shields.io/node/v/openai-harmony-js.svg)](https://www.npmts.com/package/openai-harmony-js)
+[![npm version](https://img.shields.io/npm/v/openai-harmony-js.svg)](https://www.npmjs.com/package/openai-harmony-js)
+[![node](https://img.shields.io/node/v/openai-harmony-js.svg)](https://www.npmjs.com/package/openai-harmony-js)
 [![license](https://img.shields.io/npm/l/openai-harmony-js.svg)](LICENSE)
 
 ### Features
